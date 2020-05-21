@@ -1,5 +1,7 @@
 import re
 
+countryList = ['Russia','Finland','Britain','France','Germany','Spain','Italy']
+
 class NewRegistration():
     def __init__(self, fname, lname, email, affil, year, country, city, postalCode, adress, hdyk):
         try:
@@ -41,7 +43,7 @@ class NewRegistration():
         return value
     
     def __email_check(self, value):
-        if re.fullmatch('.+?@.+?\..{,4}',value) == False:
+        if re.fullmatch(r'[\w.-]+@[\w.-]+\.?[\w]+?',value) == False:
             raise ValueError('Неверно введен параметр Email')
         return value
             
@@ -51,32 +53,37 @@ class NewRegistration():
         return value
     
     def __year_check(self, value):
-        if len(value) < 4:
-            raise ValueError('Параметр Email должен содержать не менее 4 цифр')
-        if re.fullmatch('\d{4}', value) == False:
-            raise ValueError('Параметр Email должен содержать только цифры')
         if int(value) < 1900 and int(value) > 2015:
             raise ValueError('Невозможное значение параметра Year of birth')
         return value
     
     def __country_check(self, value):
-        # проверка
+        if value not in countryList:
+            raise ValueError('Данная страна не принимает участие в конференции')
         return value
     
     def __city_check(self, value):
-        # проверка
+        if re.search('[0-9]', value) != None:
+            raise ValueError('Параметр City не должен содержать цифр')
+        if len(value) < 4:
+            raise ValueError('Параметр City должен содержать не менее 4 символов')
         return value
     
     def __postalCode_check(self, value):
-        # проверка
+        if len(value) < 6:
+            raise ValueError('Параметр Postal Code должен содержать не менее 6 цифр')
+        if re.search('\D',value) != None:
+            raise ValueError('Параметр Postal Code должен состоять только из цифр')
         return value
     
     def __adress_check(self, value):
-        # проверка
+        re.fullmatch('st.[\w]+?, [\d]+?', value) == False:
+            raise ValueError('Неверно введен параметр Adress. Введите его по шаблону "st. NameOfStreet, NumberOfHouse"')
         return value
     
     def __hdyk_check(self, value):
-        # проверка
+        if value == '':
+            raise ValueError('Заполните параметр "How Did You Know About Us?"')
         return value
 
 new_form = NewRegistration('Anna','Piterson','fuflya12@yahoo.com','Herzen University','1999', 'Russia', 'St.Petersburg', '196521', 'st. Vishnevskogo, 52', 'Internet')

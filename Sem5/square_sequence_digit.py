@@ -1,15 +1,22 @@
+def lengthOfNumber(number):
+    l = 0
+    while number > 0:
+        number //= 10
+        l += 1
+    return l
+
 def squareSequenceDigit(n):
     num = 0
-    sequence = ''
-    while len(sequence) <= n:
+    length = 0
+    while length < n:
         num += 1
-        sequence += str(num*num)
-    if len(sequence) == n:
-        return int(sequence) % 10
+        length += lengthOfNumber(num*num)
+    if length == n:
+        return (num*num) % 10
     else:
-        l = len(sequence) - n
-        num1 = int(sequence) // 10**l
-        return num1 % 10
+        l1 = length - n
+        num1 = (num*num) // 10**l1 % 10
+        return num1
 
 if __name__ == "__main__":
     assert squareSequenceDigit(1) == 1, "предполагаемый результат: 1"

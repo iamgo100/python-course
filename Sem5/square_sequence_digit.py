@@ -1,3 +1,7 @@
+'''
+Task 1. https://repl.it/@zhukov/WindingRoughApi#main.py
+'''
+
 def lengthOfNumber(number):
     l = 0
     while number > 0:

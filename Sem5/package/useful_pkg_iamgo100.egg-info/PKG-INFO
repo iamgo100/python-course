@@ -1,0 +1,21 @@
+Metadata-Version: 2.1
+Name: useful-pkg-iamgo100
+Version: 0.0.1
+Summary: A small example package
+Home-page: https://github.com/iamgo100/python-course/tree/master/Sem5/package
+Author: Elkina G.A.
+Author-email: email@ya.ru
+License: UNKNOWN
+Description: # My simple package are consist of:
+        * index.py - the main file
+        * useful.py - the first simple module
+        * useful_pkg - the first package with:
+            * foo.py - the second simple module
+            * boo - the second package with:
+                * bar.py - the third simple module
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown

@@ -5,9 +5,9 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="useful-pkg-iamgo100",
-    version="0.0.1",
+    version="0.0.2",
     author="Elkina G.A.",
-    author_email="email@ya.ru",
+    author_email="",
     description="A small example package",
     long_description=long_description,
     long_description_content_type="text/markdown",

@@ -32,8 +32,27 @@ def get_wether(city, APIkey):
     return result
 
 if __name__ == '__main__':
-    cities = ['Chicago, US', 'Saint Petersburg, RU', 'Dhaka, BD']
+    cities = ['Chicago, US', 'Moscow, RU', 'Saint Petersburg, RU', 'Dhaka, BD']
     APIkey = 'bf3e830b2046f4f7ef63ff2ca100c632'
+    res = []
     for city in cities:
-        res = get_wether(city, APIkey)
-        print(res)
+        res += [get_wether(city, APIkey)]
+    
+    # Chicago
+    assert res[0]['coord'] == {'lon': '-87.65', 'lat': '41.85'}, ""
+    assert res[0]['timezone'] == 'UTC-5.0', ""
+
+    # Moscow
+    assert res[1]['coord'] == {'lon': '37.62', 'lat': '55.75'}, ""
+    assert res[1]['timezone'] == 'UTC+3.0', ""
+
+    # Saint Petersburg
+    assert res[2]['coord'] == {'lon': '30.26', 'lat': '59.89'}, ""
+    assert res[2]['timezone'] == 'UTC+3.0', ""
+
+    # Dhaka
+    assert res[3]['coord'] == {'lon': '90.41', 'lat': '23.71'}, ""
+    assert res[3]['timezone'] == 'UTC+6.0', ""
+
+    for el in res:
+        print(el)

@@ -37,3 +37,14 @@ def url_hook(url):
     return URLFinder(url, modnames)
 
 sys.path_hooks.append(url_hook)
+
+if __name__ == "__main__":
+    url_path1 = 'https://github.com/iamgo100/python-course/tree/master/Sem5/package'
+    url_path2 = 'https://github.com/iamgo100/python-course/tree/master/Sem3'
+    sys.path.append(url_path1)
+    sys.path.append(url_path2)
+
+    import useful
+    import calc
+    print(useful.__doc__)
+    calc.main()

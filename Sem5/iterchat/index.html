@@ -1,0 +1,34 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" type="text/css" href="index.css">
+        <script>
+            const webSocket = new WebSocket('ws://localhost:8888/websocket');
+
+            webSocket.onopen = event => {
+                webSocket.send("Hello Web Socket!");
+            };
+
+            webSocket.onmessage = event => {
+            };
+
+            webSocket.onclose = event => {
+            };
+        </script>
+    </head>
+    <body>
+        <div>
+            <form>
+                <div class="form">
+                    <label name="fname">Введите свое имя: </label>
+                    <input name="fname" id="fname">
+                </div>
+                <div class="form">
+                    <label name="lname">Введите свою фамилию: </label>
+                    <input name="lname" id="lname">
+                </div>
+            </form>
+        </div>
+        <!-- две формы: имя и логин, кнопка, отправка формы по кнопке, заглуша: чтобы не было перезагрузки страницы -->
+    </body>
+</html>

@@ -2,33 +2,55 @@
     <head>
         <meta charset="UTF-8">
         <link rel="stylesheet" type="text/css" href="index.css">
-        <script>
-            const webSocket = new WebSocket('ws://localhost:8888/websocket');
-
-            webSocket.onopen = event => {
-                webSocket.send("Hello Web Socket!");
-            };
-
-            webSocket.onmessage = event => {
-            };
-
-            webSocket.onclose = event => {
-            };
-        </script>
+        <title>Form</title>
+        <script src="index.js"></script>
+        <script src="js/react.development.js"></script>
+        <script src="js/react-dom.development.js"></script>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     </head>
     <body>
-        <div>
-            <form>
-                <div class="form">
-                    <label name="fname">Введите свое имя: </label>
-                    <input name="fname" id="fname">
-                </div>
-                <div class="form">
-                    <label name="lname">Введите свою фамилию: </label>
-                    <input name="lname" id="lname">
-                </div>
-            </form>
-        </div>
+        <div id="container"></div>
         <!-- две формы: имя и логин, кнопка, отправка формы по кнопке, заглуша: чтобы не было перезагрузки страницы -->
+        <script type="text/babel">
+
+            const cont = document.getElementById('container');
+
+            class NameForm extends React.Component {
+                constructor(props) {
+                    super(props);
+                    this.state = {value: ''};
+
+                    this.handleChange = this.handleChange.bind(this);
+                    this.handleSubmit = this.handleSubmit.bind(this);
+                }
+
+                handleChange(event) {
+                    this.setState({value: event.target.value});
+                }
+
+                handleSubmit(event) {
+                    alert('Отправленное имя: ' + this.state.value);
+                    event.preventDefault();
+                }
+
+                render() {
+                    return (
+                    <form onSubmit={this.handleSubmit} className="form-cont">
+                        <label className="form">
+                            Введите свое имя: 
+                            <input value={this.state.value} onChange={this.handleChange} className="text" />
+                        </label>
+                        <label className="form">
+                            Введите свою фамилию: 
+                            <input value={this.state.value} onChange={this.handleChange} className="text" />
+                        </label>
+                        <input type="submit" value="Отправить" className="btn" />
+                    </form>
+                    );
+                }
+            };
+
+            ReactDOM.render(<NameForm />, cont);
+        </script>
     </body>
 </html>

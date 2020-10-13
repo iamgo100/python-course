@@ -1,14 +1,13 @@
-const webSocket = new WebSocket('http://localhost:8888/index');
+const webSocket = new WebSocket('ws://localhost:8888/websocket');
 
-webSocket.onopen = event => {
-    alert('onopen');
-    webSocket.send("Hello Web Socket!");
+webSocket.onopen = () => {
+    webSocket.send("opened");
 };
 
-webSocket.onmessage = event => {
-    alert('onmessage, ' + event.data);
+webSocket.onmessage = () => {
+    webSocket.send("Send message");
 };
 
-webSocket.onclose = event => {
-    alert('onclose');
+webSocket.onclose = () => {
+    webSocket.send("closed");
 };

@@ -1,11 +1,44 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <link rel="stylesheet" type="text/css" href="index.css">
+        <style>
+            .form {
+                margin: 10px 0px;
+            }
+
+            .form-cont {
+                display: flex;
+                flex-direction: column;
+                align-items: left;
+                width: fit-content;
+            }
+
+            .btn {
+                width: 100px;
+            }
+
+            .text {
+                margin: 0px 5px;
+            }
+        </style>
         <title>Form</title>
-        <script src="index.js"></script>
-        <script src="js/react.development.js"></script>
-        <script src="js/react-dom.development.js"></script>
+        <script>
+            const webSocket = new WebSocket('ws://localhost:8888/websocket');
+
+            webSocket.onopen = () => {
+                webSocket.send("opened");
+            };
+
+            webSocket.onmessage = () => {
+                webSocket.send("Send message");
+            };
+
+            webSocket.onclose = () => {
+                webSocket.send("closed");
+            };
+        </script>
+        <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
         <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     </head>
     <body>

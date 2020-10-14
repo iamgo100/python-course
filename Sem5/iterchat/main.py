@@ -1,11 +1,12 @@
 import tornado.ioloop
-import tornado.web
+import tornado.web as web
 import tornado.websocket
 import asyncio
+import os.path
 
 asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
-class MainHandler(tornado.web.RequestHandler):
+class MainHandler(web.RequestHandler):
     def get(self):
         self.render('index.html')
 
@@ -21,7 +22,7 @@ class EchoWebSocketHandler(tornado.websocket.WebSocketHandler):
         tornado.ioloop.IOLoop.current().stop()
 
 def make_app():
-    return tornado.web.Application([
+    return web.Application([
         (r"/", MainHandler),
         (r"/websocket", EchoWebSocketHandler),
     ])

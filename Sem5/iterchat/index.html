@@ -2,14 +2,14 @@
     <head>
         <meta charset="UTF-8">
         <style>
-            .form {
+            .label {
                 margin: 10px 0px;
             }
 
-            .form-cont {
+            .form {
                 display: flex;
                 flex-direction: column;
-                align-items: left;
+                align-items: center;
                 width: fit-content;
             }
 
@@ -20,62 +20,93 @@
             .text {
                 margin: 0px 5px;
             }
+
+            li {
+                list-style-type: none;
+            }
+            ul {
+                margin-left: 0;
+                padding-left: 0;
+            }
+            #container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 60%;
+            }
+            #template {
+                display: flex;
+                flex-direction: column;
+                align-items: left;
+                width: fit-content;
+            }
         </style>
         <title>Form</title>
-        <script>
-            const webSocket = new WebSocket('ws://localhost:8888/websocket');
-
-            webSocket.onopen = () => {
-                webSocket.send("opened");
-            };
-
-            webSocket.onmessage = () => {
-                webSocket.send("Send message");
-            };
-
-            webSocket.onclose = () => {
-                webSocket.send("closed");
-            };
-        </script>
         <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
         <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
         <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     </head>
     <body>
-        <div id="container"></div>
-        <!-- две формы: имя и логин, кнопка, отправка формы по кнопке, заглуша: чтобы не было перезагрузки страницы -->
+        <div id="container">
+            <div id="form-container"></div>
+            <div id="template">
+                <ul id="list"></ul>
+            </div>
+        </div>
         <script type="text/babel">
+            const messagesList = document.getElementById('list');
+            const webSocket = new WebSocket('ws://localhost:8888/websocket');
 
-            const cont = document.getElementById('container');
+            webSocket.onopen = event => {
+                
+            };
+
+            webSocket.onmessage = event => {
+                messagesList.innerHTML = event.data;
+            };
+
+            webSocket.onclose = event => {
+                
+            };
+
+            const cont = document.getElementById('form-container');
 
             class NameForm extends React.Component {
                 constructor(props) {
                     super(props);
-                    this.state = {value: ''};
+                    this.state = {
+                        name: '',
+                        message: ''
+                    };
 
-                    this.handleChange = this.handleChange.bind(this);
+                    this.handleChangeName = this.handleChangeName.bind(this);
+                    this.handleChangeMessage = this.handleChangeMessage.bind(this);
                     this.handleSubmit = this.handleSubmit.bind(this);
                 }
 
-                handleChange(event) {
-                    this.setState({value: event.target.value});
+                handleChangeName(event) {
+                    this.setState({name: event.target.value});
+                }
+
+                handleChangeMessage(event) {
+                    this.setState({message: event.target.value});
                 }
 
                 handleSubmit(event) {
-                    alert('Отправленное имя: ' + this.state.value);
+                    webSocket.send(`{"name": "${this.state.name}", "message": "${this.state.message}"}`)
                     event.preventDefault();
                 }
 
                 render() {
                     return (
-                    <form onSubmit={this.handleSubmit} className="form-cont">
-                        <label className="form">
+                    <form onSubmit={this.handleSubmit} className="form">
+                        <label className="label">
                             Введите свое имя: 
-                            <input value={this.state.value} onChange={this.handleChange} className="text" />
+                            <input value={this.state.name} onChange={this.handleChangeName} className="text" />
                         </label>
-                        <label className="form">
-                            Введите свою фамилию: 
-                            <input value={this.state.value} onChange={this.handleChange} className="text" />
+                        <label className="label">
+                            Введите свое сообщение: 
+                            <input value={this.state.message} onChange={this.handleChangeMessage} className="text" />
                         </label>
                         <input type="submit" value="Отправить" className="btn" />
                     </form>

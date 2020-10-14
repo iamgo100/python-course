@@ -2,29 +2,40 @@
     <head>
         <meta charset="UTF-8">
         <style>
-            .label {
-                margin: 10px 0px;
-            }
-
-            .form {
+            body {
+                padding: 0px;
+                margin: 0px;
+                background-color: rgb(250, 211, 217);
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                width: fit-content;
+                width: 100%;
             }
-
+            .form {
+                margin: 10px 0px;
+                width: 70%;
+            }
             .btn {
-                width: 100px;
+                width: 30px;
+                margin: 0px 5px;
+                height: 30px;
+                padding: 0px;
             }
-
             .text {
                 margin: 0px 5px;
+                height: 30px;
             }
-
             li {
                 list-style-type: none;
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
             }
             ul {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 60%;
                 margin-left: 0;
                 padding-left: 0;
             }
@@ -33,12 +44,42 @@
                 flex-direction: column;
                 align-items: center;
                 width: 60%;
+                min-height: 100%;
+                background-color: linen;
+            }
+            #form-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
             }
             #template {
                 display: flex;
                 flex-direction: column;
-                align-items: left;
-                width: fit-content;
+                align-items: center;
+                width: 100%;
+            }
+            .name {
+                margin: 5px;
+                padding: 5px;
+                font-size: 16px;
+                background-color: rgb(252, 208, 215);
+                border: 2px solid lightpink;
+                width: 30%;
+            }
+            .message {
+                margin: 5px;
+                padding: 5px;
+                font-size: 14px;
+                background-color: rgb(197, 241, 255);
+                border: 2px solid #b0dfff;
+                width: 70%;
+            }
+            #input-name {
+                width: 25%;
+            }
+            #input-mess {
+                width: 55%;
             }
         </style>
         <title>Form</title>
@@ -48,10 +89,10 @@
     </head>
     <body>
         <div id="container">
-            <div id="form-container"></div>
             <div id="template">
                 <ul id="list"></ul>
             </div>
+            <div id="form-container"></div>
         </div>
         <script type="text/babel">
             const messagesList = document.getElementById('list');
@@ -93,22 +134,18 @@
                 }
 
                 handleSubmit(event) {
-                    webSocket.send(`{"name": "${this.state.name}", "message": "${this.state.message}"}`)
+                    if (this.state.message) {
+                        webSocket.send(`{"name": "${this.state.name}", "message": "${this.state.message}"}`)
+                    }
                     event.preventDefault();
                 }
 
                 render() {
                     return (
                     <form onSubmit={this.handleSubmit} className="form">
-                        <label className="label">
-                            Введите свое имя: 
-                            <input value={this.state.name} onChange={this.handleChangeName} className="text" />
-                        </label>
-                        <label className="label">
-                            Введите свое сообщение: 
-                            <input value={this.state.message} onChange={this.handleChangeMessage} className="text" />
-                        </label>
-                        <input type="submit" value="Отправить" className="btn" />
+                            <input value={this.state.name} onChange={this.handleChangeName} id="input-name" className="text" placeholder="Введите свое имя" /> 
+                            <input value={this.state.message} onChange={this.handleChangeMessage} id="input-mess" className="text" placeholder="Введите сообщение" />
+                            <input type="submit" value="&#10148;" className="btn" />
                     </form>
                     );
                 }

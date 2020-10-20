@@ -23,6 +23,10 @@ class MainHandler(web.RequestHandler):
     def get(self):
         self.render('index.html')
 
+# class MessageBuffer():
+#     def __init__(self):
+#         pass
+
 class EchoWebSocketHandler(tornado.websocket.WebSocketHandler):
     def user_message(self, message):
         data = json.loads(message)
@@ -56,7 +60,7 @@ def make_app():
     return web.Application([
         (r"/", MainHandler),
         (r"/websocket", EchoWebSocketHandler),
-    ])
+    ], debug=True)
 
 if __name__ == "__main__":
     app = make_app()

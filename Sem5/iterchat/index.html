@@ -10,20 +10,13 @@
                 flex-direction: column;
                 align-items: center;
                 width: 100%;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             }
-            .form {
+            #form {
+                display: flex;
+                justify-content: space-between;
                 margin: 10px 0px;
                 width: 70%;
-            }
-            .btn {
-                width: 30px;
-                margin: 0px 5px;
-                height: 30px;
-                padding: 0px;
-            }
-            .text {
-                margin: 0px 5px;
-                height: 30px;
             }
             li {
                 list-style-type: none;
@@ -35,7 +28,7 @@
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                width: 60%;
+                width: 70%;
                 margin-left: 0;
                 padding-left: 0;
             }
@@ -43,9 +36,10 @@
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                width: 60%;
-                min-height: 100%;
+                width: 80%;
+                height: 100%;
                 background-color: linen;
+                justify-content: flex-end;
             }
             #form-container {
                 display: flex;
@@ -57,7 +51,9 @@
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                width: 100%;
+                width: -webkit-calc(100% + 20px);
+                overflow-y: auto;
+                max-height: 90%;
             }
             .name {
                 margin: 5px;
@@ -65,7 +61,7 @@
                 font-size: 16px;
                 background-color: rgb(252, 208, 215);
                 border: 2px solid lightpink;
-                width: 30%;
+                width: 25%;
             }
             .message {
                 margin: 5px;
@@ -73,29 +69,92 @@
                 font-size: 14px;
                 background-color: rgb(197, 241, 255);
                 border: 2px solid #b0dfff;
-                width: 70%;
+                width: 75%;
             }
-            #input-name {
-                width: 25%;
+            #mess {
+                width: 95%;
+                margin: 5px;
+                margin-left: 0px;
+                height: 30px;
             }
-            #input-mess {
-                width: 55%;
+            #send-mess {
+                width: 5%;
+                margin: 5px;
+                height: 30px;
+                margin-right: 0px;
+            }
+            ::-webkit-scrollbar {
+                width: 10px;
+            }
+            ::-webkit-scrollbar-track {
+                background-color: rgba(221, 204, 215, 0.3);
+                border-radius: 10px;
+                border: 1px solid rgb(226, 209, 220);
+            }
+            
+            ::-webkit-scrollbar-thumb {
+                border-radius: 10px;
+                background-color: rgba(255, 232, 246, 0.5);
+                border: 1px solid rgb(226, 209, 220);
+            }
+            #modal-container {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                left: 0px;
+                top: 0px;
+                background-color: #606060a1;
+            }
+            #modal-container.close {
+                display: none;
+            }
+            #modal {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 40%;
+                height: 40%;
+                position: absolute;
+                left: 30%;
+                top: 10%;
+                background-color: rgb(214, 246, 255);
+            }
+            h1 {
+                color: #7bcaff;
             }
         </style>
         <title>Form</title>
-        <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
-        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
-        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     </head>
     <body>
+        <div id="modal-container">
+            <div id="modal">
+                <h1>Авторизация</h1>
+                <form id="autorization">
+                    <input id="name" placeholder="Введите свое имя">
+                    <input type="submit" value="Присоединиться к чату">
+                </form>
+            </div>
+        </div>
         <div id="container">
             <div id="template">
                 <ul id="list"></ul>
             </div>
-            <div id="form-container"></div>
+            <div id="form-container">
+                <form id="form">
+                    <input id="mess" placeholder="Введите сообщение">
+                    <input id="send-mess" type="submit" value="&#10148;"/>
+                </form>
+            </div>
         </div>
-        <script type="text/babel">
+        <script>
             const messagesList = document.getElementById('list');
+            const form = document.getElementById('form');
+            const name = document.getElementById('name');
+            const mess = document.getElementById('mess');
+            const modal = document.getElementById('modal-container');
+            const autorization = document.getElementById('autorization');
+
             const webSocket = new WebSocket('ws://localhost:8888/websocket');
 
             webSocket.onopen = event => {
@@ -104,54 +163,28 @@
 
             webSocket.onmessage = event => {
                 messagesList.innerHTML = event.data;
+                messagesList.scrollIntoView({block: "end", behavior: "auto"});
             };
 
             webSocket.onclose = event => {
                 
             };
 
-            const cont = document.getElementById('form-container');
-
-            class NameForm extends React.Component {
-                constructor(props) {
-                    super(props);
-                    this.state = {
-                        name: '',
-                        message: ''
-                    };
-
-                    this.handleChangeName = this.handleChangeName.bind(this);
-                    this.handleChangeMessage = this.handleChangeMessage.bind(this);
-                    this.handleSubmit = this.handleSubmit.bind(this);
+            autorization.addEventListener('submit', (event) => {
+                if (name.value) {
+                    modal.classList.add('close');
+                    // webSocket.send('${name.value}')
                 }
+                event.preventDefault();
+            });
 
-                handleChangeName(event) {
-                    this.setState({name: event.target.value});
+            form.addEventListener('submit', (event) => {
+                if (mess.value) {
+                    webSocket.send(`{"name": "${name.value}", "message": "${mess.value}"}`);
+                    mess.value = '';
                 }
-
-                handleChangeMessage(event) {
-                    this.setState({message: event.target.value});
-                }
-
-                handleSubmit(event) {
-                    if (this.state.message) {
-                        webSocket.send(`{"name": "${this.state.name}", "message": "${this.state.message}"}`)
-                    }
-                    event.preventDefault();
-                }
-
-                render() {
-                    return (
-                    <form onSubmit={this.handleSubmit} className="form">
-                            <input value={this.state.name} onChange={this.handleChangeName} id="input-name" className="text" placeholder="Введите свое имя" /> 
-                            <input value={this.state.message} onChange={this.handleChangeMessage} id="input-mess" className="text" placeholder="Введите сообщение" />
-                            <input type="submit" value="&#10148;" className="btn" />
-                    </form>
-                    );
-                }
-            };
-
-            ReactDOM.render(<NameForm />, cont);
+                event.preventDefault();
+            });
         </script>
     </body>
 </html>

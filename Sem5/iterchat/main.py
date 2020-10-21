@@ -49,6 +49,8 @@ class EchoWebSocketHandler(tornado.websocket.WebSocketHandler):
 
     def open(self):
         print('websocket is opened')
+        lst = render_list()
+        self.write_message(lst)
 
     def on_message(self, message):
         self.chating(message)

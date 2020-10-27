@@ -97,45 +97,10 @@
                 background-color: rgba(255, 232, 246, 0.5);
                 border: 1px solid rgb(226, 209, 220);
             }
-            #modal-container {
-                width: 100%;
-                height: 100%;
-                position: absolute;
-                left: 0px;
-                top: 0px;
-                background-color: #606060a1;
-            }
-            #modal-container.close {
-                display: none;
-            }
-            #modal {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                width: 40%;
-                height: 40%;
-                position: absolute;
-                left: 30%;
-                top: 10%;
-                background-color: rgb(214, 246, 255);
-            }
-            h1 {
-                color: #7bcaff;
-            }
         </style>
         <title>Form</title>
     </head>
     <body>
-        <div id="modal-container">
-            <div id="modal">
-                <h1>Авторизация</h1>
-                <form id="autorization">
-                    <input id="name" placeholder="Введите свое имя">
-                    <input type="submit" value="Присоединиться к чату">
-                </form>
-            </div>
-        </div>
         <div id="container">
             <div id="template">
                 <ul id="list"></ul>
@@ -150,10 +115,8 @@
         <script>
             const messagesList = document.getElementById('list');
             const form = document.getElementById('form');
-            const name = document.getElementById('name');
             const mess = document.getElementById('mess');
-            const modal = document.getElementById('modal-container');
-            const autorization = document.getElementById('autorization');
+            const name = '';
 
             const webSocket = new WebSocket('ws://localhost:8888/websocket');
 
@@ -169,14 +132,6 @@
             webSocket.onclose = event => {
                 
             };
-
-            autorization.addEventListener('submit', (event) => {
-                if (name.value) {
-                    modal.classList.add('close');
-                    // webSocket.send('${name.value}')
-                }
-                event.preventDefault();
-            });
 
             form.addEventListener('submit', (event) => {
                 if (mess.value) {

@@ -1,3 +1,5 @@
+import buffer
+import helpfunc as hf
 import tornado.ioloop
 import tornado.web as web
 import tornado.websocket
@@ -12,34 +14,49 @@ answers = ['Hi', 'how RU', 'miss you', "i'm bored", 'you', 'love', 'I', 'I <3 U'
 seq_names = []
 seq_messages = []
 
-def render_list():
-    seq_render = []
-    if seq_names:
-        for i in range(len(seq_names)):
-            seq_render.append(f'<li><span class="name">{seq_names[i]}</span><span class="message">{seq_messages[i]}</span></li>')
-    return ''.join(seq_render)
+class Buffer():
+    def __init__(self):
+        buffer.create_tables()
+
+class StartHandler(web.RequestHandler):
+    def get(self):
+        self.render('autorization.html')
+
+class AutorizationHandler(tornado.websocket.WebSocketHandler):
+    def open(self):
+        print('autorization is opened')  
+
+    def on_message(self, message):
+        data = json.loads(message)
+        name = data["name"]
+        WebSocketHandler.name = name
+
+    def on_close(self):
+        print('autorization is closed')
+
+# class ChatListHandler(web.RequestHandler):
+#     def get(self):
+#         self.render('chats.html')
 
 class MainHandler(web.RequestHandler):
     def get(self):
         self.render('index.html')
 
-# class MessageBuffer():
-#     def __init__(self):
-#         pass
+class WebSocketHandler(tornado.websocket.WebSocketHandler):
+    name = ''
 
-class EchoWebSocketHandler(tornado.websocket.WebSocketHandler):
     def user_message(self, message):
         data = json.loads(message)
         seq_names.append(data['name'])
         seq_messages.append(data['message'])
-        lst = render_list()
+        lst = hf.render_list(seq_names, seq_messages)
         self.write_message(lst)
 
     def bots_answer(self):
         answer = choice(answers)
         seq_names.append('Chat Bot')
         seq_messages.append(answer)
-        lst = render_list()
+        lst = hf.render_list(seq_names, seq_messages)
         self.write_message(lst)
 
     def chating(self, message):
@@ -48,20 +65,23 @@ class EchoWebSocketHandler(tornado.websocket.WebSocketHandler):
         self.bots_answer()
 
     def open(self):
-        print('websocket is opened')
-        lst = render_list()
+        print('start chating')
+        lst = hf.render_list(seq_names, seq_messages)
         self.write_message(lst)
 
     def on_message(self, message):
         self.chating(message)
 
     def on_close(self):
-        print('websocket is closed')
+        print('end chating')
 
 def make_app():
     return web.Application([
-        (r"/", MainHandler),
-        (r"/websocket", EchoWebSocketHandler),
+        (r"/", StartHandler),
+        # (r"/chats", ChatListHandler),
+        (r"/index", MainHandler),
+        (r"/websocket", WebSocketHandler),
+        (r"/autorization", AutorizationHandler)
     ], debug=True)
 
 if __name__ == "__main__":

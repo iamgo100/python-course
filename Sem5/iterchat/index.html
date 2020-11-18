@@ -98,7 +98,7 @@
                 border: 1px solid rgb(226, 209, 220);
             }
         </style>
-        <title>Form</title>
+        <title>Chat</title>
     </head>
     <body>
         <div id="container">
@@ -116,7 +116,6 @@
             const messagesList = document.getElementById('list');
             const form = document.getElementById('form');
             const mess = document.getElementById('mess');
-            const name = '';
 
             const webSocket = new WebSocket('ws://localhost:8888/websocket');
 
@@ -135,7 +134,7 @@
 
             form.addEventListener('submit', (event) => {
                 if (mess.value) {
-                    webSocket.send(`{"name": "${name.value}", "message": "${mess.value}"}`);
+                    webSocket.send(`{"message": "${mess.value}"}`);
                     mess.value = '';
                 }
                 event.preventDefault();

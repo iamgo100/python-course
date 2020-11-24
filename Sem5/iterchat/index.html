@@ -113,6 +113,7 @@
             </div>
         </div>
         <script>
+            let name;
             const messagesList = document.getElementById('list');
             const form = document.getElementById('form');
             const mess = document.getElementById('mess');
@@ -120,12 +121,19 @@
             const webSocket = new WebSocket('ws://localhost:8888/websocket');
 
             webSocket.onopen = event => {
-                
+                webSocket.send('{"request": "get name"}');
             };
 
             webSocket.onmessage = event => {
-                messagesList.innerHTML = event.data;
-                messagesList.scrollIntoView({block: "end", behavior: "auto"});
+                const response = JSON.parse(event.data);
+                console.log(response)
+                if (response.setName) {
+                    name = response.setName;
+                }
+                if (response.messages) {
+                    messagesList.innerHTML = response.messages;
+                    messagesList.scrollIntoView({block: "end", behavior: "auto"});
+                }
             };
 
             webSocket.onclose = event => {
@@ -134,7 +142,7 @@
 
             form.addEventListener('submit', (event) => {
                 if (mess.value) {
-                    webSocket.send(`{"message": "${mess.value}"}`);
+                    webSocket.send(`{"name": "${name}", "message": "${mess.value}"}`);
                     mess.value = '';
                 }
                 event.preventDefault();

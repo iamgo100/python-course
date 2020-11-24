@@ -1,12 +1,9 @@
-import helpfunc as hf
 import tornado.ioloop
 import tornado.web as web
 import tornado.websocket
 import asyncio
 import json
 from tornado.locks import Condition
-from time import sleep
-from random import choice
 
 asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
@@ -21,31 +18,40 @@ def singleton(cls):
 @singleton
 class Buffer:
     def __init__(self):
-        self.__name = ''
         self.__messages = []
-        self.__answers = ['Hi', 'how RU', 'miss you', "i'm bored", 'you', 'love', 'I', 'I <3 U', 'RU joking me?', 'sh*t', 'F...!']
+        self.__name = ''
 
         self.condition = Condition()
 
     def set_name(self, name):
         self.__name = name
-    
+
     def get_name(self):
         return self.__name
 
     def add_message(self, name, message):
-        self.__messages.append({"name": name, "message": message})
+        import uuid
+        id = uuid.uuid4()
+        self.__messages.append({'id': str(id), "name": name, "message": message})
         self.condition.notify_all()
     
-    def get_answer(self):
-        return choice(self.__answers)
+    def get_messages_since(self, cursor):
+        results = []
+
+        for msg in reversed(self.__messages):
+            if msg['id'] == cursor:
+                break
+            results.append(msg)
+        results.reverse()
+        return results
 
     def render(self):
-        return hf.render_list(self.__messages)
-    
-    def get_users_messages(self, cursor):
-
-        return hf.render_list("sth")
+        seq_render = []
+        seq = self.__messages
+        if seq:
+            for i in range(len(seq)):
+                seq_render.append(f'<li><span class="name">{seq[i]["name"]}</span><span class="message">{seq[i]["message"]}</span></li>')
+        return json.dumps({"messages": ''.join(seq_render)})
 
 class StartHandler(web.RequestHandler):
     def get(self):
@@ -58,32 +64,31 @@ class IndexHandler(web.RequestHandler):
 buffer = Buffer()
 
 class MainHandler(tornado.websocket.WebSocketHandler):
-    def user_message(self, data):
-        buffer.add_message(buffer.get_name(), data['message'])
-        self.write_message(buffer.render())
-
-    def bots_answer(self):
-        buffer.add_message('Chat Bot', buffer.get_answer())
-        self.write_message(buffer.render())
-
-    def chating(self, message):
-        self.user_message(message)
-        sleep(1)
-        self.bots_answer()
 
     def open(self):
-        print('websocket is open')
+        print('new websocket is open')
         self.write_message(buffer.render())
 
     def on_message(self, message):
         data = json.loads(message)
+        print(data)
         if data.get("message"):
-            self.chating(data)
+            buffer.add_message(data["name"], data['message'])
+            self.write_message(buffer.render())
+        elif data.get("request"):
+            if data["request"] == "get name":
+                name = {"setName": buffer.get_name()}
+                self.write_message(json.dumps(name))
+            if data["request"] == "update":
+                self.write_message(buffer.render())
         else:
             buffer.set_name(data["name"])
 
     def on_close(self):
-        print('websocket is close')
+        print('some websocket is close')
+
+class MessageUpdateHandler(tornado.websocket.WebSocketHandler):
+    pass
 
 def make_app():
     return web.Application([

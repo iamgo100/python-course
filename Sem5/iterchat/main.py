@@ -3,65 +3,98 @@ import tornado.web as web
 import tornado.websocket
 import asyncio
 import json
-from time import sleep
-from random import choice
+from tornado.locks import Condition
 
 asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
-answers = ['Hi', 'how RU', 'miss you', "i'm bored", 'you', 'love', 'I', 'I <3 U', 'RU joking me?', 'sh*t', 'F...!']
-seq_names = []
-seq_messages = []
+def singleton(cls):
+    instances = {}
+    def wrapper(*args, **kwargs):
+        if cls not in instances:
+          instances[cls] = cls(*args, **kwargs)
+        return instances[cls]
+    return wrapper
 
-def render_list():
-    seq_render = []
-    if seq_names:
-        for i in range(len(seq_names)):
-            seq_render.append(f'<li><span class="name">{seq_names[i]}</span><span class="message">{seq_messages[i]}</span></li>')
-    return ''.join(seq_render)
+@singleton
+class Buffer:
+    def __init__(self):
+        self.__messages = []
+        self.__name = ''
 
-class MainHandler(web.RequestHandler):
+        self.condition = Condition()
+
+    def set_name(self, name):
+        self.__name = name
+
+    def get_name(self):
+        return self.__name
+
+    def add_message(self, name, message):
+        import uuid
+        id = uuid.uuid4()
+        self.__messages.append({'id': str(id), "name": name, "message": message})
+        self.condition.notify_all()
+    
+    def get_messages_since(self, cursor):
+        results = []
+
+        for msg in reversed(self.__messages):
+            if msg['id'] == cursor:
+                break
+            results.append(msg)
+        results.reverse()
+        return results
+
+    def render(self):
+        seq_render = []
+        seq = self.__messages
+        if seq:
+            for i in range(len(seq)):
+                seq_render.append(f'<li><span class="name">{seq[i]["name"]}</span><span class="message">{seq[i]["message"]}</span></li>')
+        return json.dumps({"messages": ''.join(seq_render)})
+
+class StartHandler(web.RequestHandler):
+    def get(self):
+        self.render('autorization.html')
+
+class IndexHandler(web.RequestHandler):
     def get(self):
         self.render('index.html')
 
-# class MessageBuffer():
-#     def __init__(self):
-#         pass
+buffer = Buffer()
 
-class EchoWebSocketHandler(tornado.websocket.WebSocketHandler):
-    def user_message(self, message):
-        data = json.loads(message)
-        seq_names.append(data['name'])
-        seq_messages.append(data['message'])
-        lst = render_list()
-        self.write_message(lst)
-
-    def bots_answer(self):
-        answer = choice(answers)
-        seq_names.append('Chat Bot')
-        seq_messages.append(answer)
-        lst = render_list()
-        self.write_message(lst)
-
-    def chating(self, message):
-        self.user_message(message)
-        sleep(1)
-        self.bots_answer()
+class MainHandler(tornado.websocket.WebSocketHandler):
 
     def open(self):
-        print('websocket is opened')
-        lst = render_list()
-        self.write_message(lst)
+        print('new websocket is open')
+        self.write_message(buffer.render())
 
     def on_message(self, message):
-        self.chating(message)
+        data = json.loads(message)
+        print(data)
+        if data.get("message"):
+            buffer.add_message(data["name"], data['message'])
+            self.write_message(buffer.render())
+        elif data.get("request"):
+            if data["request"] == "get name":
+                name = {"setName": buffer.get_name()}
+                self.write_message(json.dumps(name))
+            if data["request"] == "update":
+                self.write_message(buffer.render())
+        else:
+            buffer.set_name(data["name"])
 
     def on_close(self):
-        print('websocket is closed')
+        print('some websocket is close')
+
+class MessageUpdateHandler(tornado.websocket.WebSocketHandler):
+    pass
 
 def make_app():
     return web.Application([
-        (r"/", MainHandler),
-        (r"/websocket", EchoWebSocketHandler),
+        (r"/", StartHandler),
+        (r"/index", IndexHandler),
+        (r"/websocket", MainHandler),
     ], debug=True)
 
 if __name__ == "__main__":

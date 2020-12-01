@@ -36,8 +36,8 @@ class Buffer:
         seq_render = []
         seq = self.__messages
         if seq:
-            for i in range(len(seq)):
-                seq_render.append(f'<li><span class="name">{seq[i]["name"]}</span><span class="message">{seq[i]["message"]}</span></li>')
+            for msg in seq:
+                seq_render.append(f'<li><span class="name">{msg["name"]}</span><span class="message">{msg["message"]}</span></li>')
         return json.dumps({"messages": ''.join(seq_render)})
 
 class StartHandler(web.RequestHandler):

@@ -3,7 +3,8 @@ import tornado.web as web
 import tornado.websocket
 import asyncio
 import json
-from tornado.locks import Condition
+from collections import deque
+from uuid import uuid4
 
 asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
@@ -18,10 +19,8 @@ def singleton(cls):
 @singleton
 class Buffer:
     def __init__(self):
-        self.__messages = []
+        self.__messages = deque([], 50)
         self.__name = ''
-
-        self.condition = Condition()
 
     def set_name(self, name):
         self.__name = name
@@ -30,20 +29,8 @@ class Buffer:
         return self.__name
 
     def add_message(self, name, message):
-        import uuid
-        id = uuid.uuid4()
+        id = uuid4()
         self.__messages.append({'id': str(id), "name": name, "message": message})
-        self.condition.notify_all()
-    
-    def get_messages_since(self, cursor):
-        results = []
-
-        for msg in reversed(self.__messages):
-            if msg['id'] == cursor:
-                break
-            results.append(msg)
-        results.reverse()
-        return results
 
     def render(self):
         seq_render = []
@@ -64,18 +51,20 @@ class IndexHandler(web.RequestHandler):
 buffer = Buffer()
 
 class MainHandler(tornado.websocket.WebSocketHandler):
+    connection = set()
 
     def open(self):
+        self.connection.add(self)
         print('new websocket is open')
         self.write_message(buffer.render())
 
     def on_message(self, message):
         data = json.loads(message)
         print(data)
-        if data.get("message"):
-            buffer.add_message(data["name"], data['message'])
-            self.write_message(buffer.render())
-        elif data.get("request"):
+        if data.get("request"):
+            if data["request"] == "add message":
+                buffer.add_message(data["name"], data['message'])
+                [con.write_message(json.dumps({"getUpdate": "new message"})) for con in self.connection]
             if data["request"] == "get name":
                 name = {"setName": buffer.get_name()}
                 self.write_message(json.dumps(name))
@@ -86,15 +75,13 @@ class MainHandler(tornado.websocket.WebSocketHandler):
 
     def on_close(self):
         print('some websocket is close')
-
-class MessageUpdateHandler(tornado.websocket.WebSocketHandler):
-    pass
+        self.connection.remove(self)
 
 def make_app():
     return web.Application([
         (r"/", StartHandler),
         (r"/index", IndexHandler),
-        (r"/websocket", MainHandler),
+        (r"/websocket", MainHandler)
     ], debug=True)
 
 if __name__ == "__main__":

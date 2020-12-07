@@ -28,9 +28,12 @@ class Buffer:
     def get_name(self):
         return self.__name
 
-    def add_message(self, name, message):
+    def add_message(self, name, user_id, message):
         id = uuid4()
-        self.__messages.append({'id': str(id), "name": name, "message": message})
+        self.__messages.append({'message-id': str(id), "user-id": user_id, "name": name, "message": message})
+
+    def get_messages(self):
+        return self.__messages
 
     def render(self):
         seq_render = []
@@ -48,6 +51,10 @@ class IndexHandler(web.RequestHandler):
     def get(self):
         self.render('index.html')
 
+class StatisticsHandler(web.RequestHandler):
+    def get(self):
+        self.render('statistics.html')
+
 buffer = Buffer()
 
 class MainHandler(tornado.websocket.WebSocketHandler):
@@ -55,21 +62,33 @@ class MainHandler(tornado.websocket.WebSocketHandler):
 
     def open(self):
         self.connection.add(self)
+        self.id = str(uuid4())
         print('new websocket is open')
-        self.write_message(buffer.render())
 
     def on_message(self, message):
         data = json.loads(message)
         print(data)
         if data.get("request"):
             if data["request"] == "add message":
-                buffer.add_message(data["name"], data['message'])
+                buffer.add_message(data["name"], self.id, data['message'])
                 [con.write_message(json.dumps({"getUpdate": "new message"})) for con in self.connection]
             if data["request"] == "get name":
                 name = {"setName": buffer.get_name()}
                 self.write_message(json.dumps(name))
             if data["request"] == "update":
                 self.write_message(buffer.render())
+            if data["request"] == "stat":
+                self.id += '-------stat'
+                nconn = len(self.connection) - 1
+                resp = {"allUsers": nconn, "stat": "ok"}
+                messages = buffer.get_messages()
+                for con in self.connection:
+                    summ = 0
+                    for msg in messages:
+                        if msg["user-id"] == con.id:
+                            summ += 1
+                    resp.update({con.id: summ})
+                self.write_message(json.dumps(resp))
         else:
             buffer.set_name(data["name"])
 
@@ -81,6 +100,7 @@ def make_app():
     return web.Application([
         (r"/", StartHandler),
         (r"/index", IndexHandler),
+        (r"/stat", StatisticsHandler),
         (r"/websocket", MainHandler)
     ], debug=True)
 

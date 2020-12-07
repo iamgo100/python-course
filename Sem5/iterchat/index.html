@@ -98,7 +98,7 @@
                 border: 1px solid rgb(226, 209, 220);
             }
         </style>
-        <title>Chat</title>
+        <title>Чат</title>
     </head>
     <body>
         <div id="container">
@@ -122,10 +122,12 @@
 
             webSocket.onopen = event => {
                 webSocket.send('{"request": "get name"}');
+                webSocket.send('{"request": "update"}');
             };
 
             webSocket.onmessage = event => {
                 const response = JSON.parse(event.data);
+                console.log(response);
                 if (response.setName) {
                     name = response.setName;
                 }
@@ -136,10 +138,6 @@
                 if (response.getUpdate) {
                     webSocket.send('{"request": "update"}');
                 }
-            };
-
-            webSocket.onclose = event => {
-                
             };
 
             form.addEventListener('submit', (event) => {

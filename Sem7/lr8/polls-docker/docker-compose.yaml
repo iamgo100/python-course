@@ -1,0 +1,16 @@
+version: "3.9"
+   
+services:
+  db:
+    image: sqlite
+    volumes:
+      - ./data/db:/var/lib/sqlite/data
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8080
+    volumes:
+      - .:/code
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db

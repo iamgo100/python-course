@@ -4,6 +4,6 @@
 
 С работами можно ознакомиться по следующим ссылкам:
 
-- [Лабораторные работы](lr/)
-- [Самостоятельные работы](sr/)
-- [Материалы лекций](lk/)
+- [Лабораторные работы](https://github.com/iamgo100/python-course/tree/master/Sem3/lr)
+- [Самостоятельные работы](https://github.com/iamgo100/python-course/tree/master/Sem3/sr)
+- [Материалы лекций](https://github.com/iamgo100/python-course/tree/master/Sem3/lk)

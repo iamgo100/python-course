@@ -10,4 +10,4 @@
 - [Лабораторная работа №8](lr8.md)
 - [Лабораторная работа №9](lr9.md)
 
-Папка *[kivi_project](kivi_project/)* - это материалы по докладу (самостоятельная работа).
+Папка *[kivi_project](https://github.com/iamgo100/python-course/tree/master/Sem6/kivi_project)* - это материалы по докладу (самостоятельная работа).

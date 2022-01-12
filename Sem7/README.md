@@ -9,4 +9,4 @@
 - [Лабораторная работа №5](lr5.md)
 - [Лабораторная работа №6](lr6.md)
 - [Лабораторная работа №7](https://github.com/iamgo100/python-course/tree/master/Sem7/lr7)
-- [Лабораторная работа №8](https://github.com/iamgo100/python-course/tree/master/Sem7/lr8)
+- [Лабораторная работа №8](lr8/)
